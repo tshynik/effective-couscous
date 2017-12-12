@@ -80,7 +80,7 @@ def formatfile(infilename, outfilename):
 				if count==1:
 					messaging("Warning: %s column is missing" % tax_headers[i] )
 					if warning == 0:
-						messaging("File Headers: %s" % headers)
+						messaging("File Headers: %s" % header)
 						warning = 1
 		
 		# effective date is on the third line
@@ -96,9 +96,9 @@ def formatfile(infilename, outfilename):
 		except ValueError:
 			if count==1:
 				messaging("Warning: effective date column is missing" )
-					if warning == 0:
-						messaging("File Headers: %s" % headers)
-						warning = 1
+				if warning == 0:
+					messaging("File Headers: %s" % header)
+					warning = 1
 		
 		# skip 2 lines b/c they add nothing
 		temp = infile.readline() #line 4
@@ -119,7 +119,7 @@ def formatfile(infilename, outfilename):
 				if count==1:
 					messaging("Warning: %s column is missing" % eeoc_headers[i] )
 					if warning == 0:
-						messaging("File Headers: %s" % headers)
+						messaging("File Headers: %s" % header)
 						warning = 1
 		
 		#write our consolidated data to file!
