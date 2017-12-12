@@ -35,11 +35,15 @@ def messaging(msg_text):
 ## The function that actually does data processing.
 def formatfile(infilename, outfilename):
 	f = open(infilename, "r")
-	infile = csv.reader(f)
+	infile = csv.reader(f, quotechar='"')
 	
 	## create outfile:
 	outfilename = outfilename + '.csv'
-	outfile = open(outfilename, "w")
+	try:
+		outfile = open(outfilename, "w")
+	except PermissionError:
+		messaging("Error: Access denied. Make sure the output file %s is not open already in another program, or name your output something else." % outfilename )
+		return("error")
 	
 	count = 0
 	warning = 0
@@ -52,6 +56,7 @@ def formatfile(infilename, outfilename):
 			#messaging("Header: %s" % line)
 			if len(line)==1:
 				messaging("Error: First line (header) is not comma-separated. Check that the first line contains the headers. Also check that this is actually a CSV file.")
+				messaging("First line: %s" % line[0])
 				return("error")
 			header = line
 			newheader = ','.join(map(str, (header[ i ] for i in range(0,len(header))))) + "\n"
@@ -74,46 +79,56 @@ def formatfile(infilename, outfilename):
 			count += 1
 			if len(line[0])!=4:
 				messaging("Warning: On line %s, Office Code may be incorrect: %s" % (linenum, line[0]) )
-			output = line
 		else:
 			subline += 1
 		
 		#messaging("Line %s: %s" % (subline, line) )
 		if len(header) != len(line):
-			messaging("Error: Different number of columns in record %s, line 2 (file line # %s) than in header." % (count, linenum) )
-			messaging("Person: %s\nProblematic line: %s" % (line,line2) )
+			messaging("Error: Different number of columns in record %s, line %s (file line # %s) than in header." % (count, subline, linenum) )
+			messaging("Person: %s\nProblematic line: %s" % (output,line) )
 			return("error")
 		##get the index # for these columns: futureproofing, in case more cols are added later
 		if subline==0:
+			output = line
 			continue
-		if subline==1:
-			## tax form fields are on the second line
-			fields = ['w4', 'witholding', 'additional amount', 'exempt']
-		if subline==2:
-			## effective date and CA withholding are on the third line
-			fields = ['effective date','CA Withholding']
-		if subline==3 or subline==4:
-			## skip 2 lines (subline==3 and 4) b/c they add nothing
-			continue
-		if subline==5:
-			## EEOC categories are on the sixth line
-			fields = ['eeoc','eeoc 2']
-		for i in range(len(fields)):
+		for field in header:
 			try:
-				#index = header.index( fields[i] )
-				#output[index] = line[index]
-				#messaging("Step %s, index of %s: %s" % ( i, fields[i] , header.index( fields[i] )) )
-				output[ header.index( fields[i] ) ] = line[ header.index( fields[i] ) ]
+				index = header.index( field )
+				if len( output[index] )==0:
+					output[ index ] = line[ index ]
 			except ValueError:
 				if count==1:
-					messaging("Warning: %s column is missing." % fields[i] )
+					messaging("Warning: %s column is missing." % field )
 					if warning == 0:
 						messaging("Available columns: %s" % header)
 						warning = 1
 			except IndexError:
-				messaging("Error on line %s of file. Count: %s, Step: %s, Index of %s: %s" % ( linenum, count, i, fields[i] , header.index( fields[i] )) )
+				messaging("Error on line %s of file. Count: %s, Step: %s, Index of %s: %s" % ( linenum, count, i, field , header.index( fields[i] )) )
 				messaging("Person: %s\nProblematic line: %s" % (output,line) )
 				return("error")
+				
+				
+		# if subline==1:
+			# ## tax form fields are on the second line
+			# fields = ['w4', 'witholding', 'additional amount', 'exempt']
+		# if subline==2:
+			# ## effective date and CA withholding are on the third line
+			# fields = ['effective date','CA Withholding']
+		# if subline==3 or subline==4:
+			# ## skip 2 lines (subline==3 and 4) b/c they add nothing
+			# continue
+		# if subline==5:
+			# ## EEOC categories are on the sixth line
+			# fields = ['eeoc','eeoc 2']
+		# for i in range(len(fields)):
+			# try:
+				# #index = header.index( fields[i] )
+				# #output[index] = line[index]
+				# #messaging("Step %s, index of %s: %s" % ( i, fields[i] , header.index( fields[i] )) )
+				# index = header.index( fields[i] )
+				# if len( line[ index ] ) > 0:
+					# output[ index ] = line[ index ]
+			
 	
 	##write our consolidated FOR THE LAST PERSON to file!
 	linestr = ','.join(map(str, (output[ i ] for i in range(len(header)) ))) + "\n"
