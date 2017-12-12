@@ -49,16 +49,12 @@ def formatfile(infilename, outfilename):
 		## process header line
 		if linenum == 1:
 			messaging("Header: %s" % line)
+			if len(line)==1:
+				messaging("Error: First line (header) is not comma-separated. Check that the first line contains the headers. Also check that this is actually a CSV file.")
+				return("error")
 	
-	# header = infile.readline()
-	# #messaging("Opened file %s" % infilename)
 	
 	
-	
-	# header = header.split(",")
-	# if len(header)==1:
-		# messaging("Error: First line (header) is not comma-separated. Check that the first line contains the headers. Also check that this is actually a CSV file.")
-		# return("error")
 	# header[-1] = header[-1].strip()
 	# #messaging("File Headers before: %s" % header)
 	# for i in range(len(header)):
