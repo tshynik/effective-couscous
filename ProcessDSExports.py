@@ -46,40 +46,26 @@ def formatfile(infilename, outfilename):
 	linenum = 0
 	for line in infile:
 		linenum += 1
+		
 		## process header line
 		if linenum == 1:
 			messaging("Header: %s" % line)
 			if len(line)==1:
 				messaging("Error: First line (header) is not comma-separated. Check that the first line contains the headers. Also check that this is actually a CSV file.")
 				return("error")
-	
-	
-	
-	# header[-1] = header[-1].strip()
-	# #messaging("File Headers before: %s" % header)
-	# for i in range(len(header)):
-		# header[i] = header[i].strip('\"\'')
-		# #messaging( header[i] )
-	# #messaging("File Headers after: %s" % header)
-	
-	# newheader = ','.join(map(str, (header[ i ] for i in range(0,len(header))))) + "\n"
-	# outfile.write( newheader )
-	
-	# # clean up and write to outfile:
-	
-	# for line in infile:
-		# #line = line.split(",")
-		# #line[-1] = line[-1].strip()
-		# messaging("line: " % line)
+			header = line
+			newheader = ','.join(map(str, (header[ i ] for i in range(0,len(header))))) + "\n"
+			outfile.write( newheader )
+			continue;
 		
-		# linenum += 1
+		## if this isn't a new person (the "office code" field is blank), go to next line. If it is, count a new person.
+		#line[0] = line[0].strip('\"\'')
+		if len(line[0])==0 :
+			continue
+		elif len(line[0])!=4:
+			messaging("Warning: On line %s, Office Code may be incorrect: %s" % (linenum, line[0]) )
+		count += 1
 		
-		# #if this isn't a new person (the "office code" field is blank), go to next line.
-		# line[0] = line[0].strip('\"\'')
-		# if( len(line[0])==0 ):
-			# continue
-		
-		# count += 1
 		
 		# # tax form fields are on the second line
 		# line2 = infile.readline()
