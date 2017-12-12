@@ -63,15 +63,16 @@ def formatfile(infilename, outfilename):
 			outfile.write( newheader )
 			continue
 		
+		## New person record is the only line with the office code (which is supposed to be 4 letters).
 		## If it is a new person:
-		##	write the last person to file (assuming it's not the first person)
-		##	count a new person
+		##	write the previous person to file (assuming it's not the first person)
+		##	count a new person (count)
 		##	start counting the next lines as belonging to the same person (subline counter)
 		#line[0] = line[0].strip('\"\'')
 		if len(line[0])!=0 :
 			if count!=0:
 				##write our consolidated data to file!
-				linestr = ','.join(map(str, (output[ i ] for i in range(len(header)) ))) + "\n"
+				linestr = ','.join(map(str, ( '"'+output[i]+'"' for i in range(len(header)) ))) + "\n"
 				# http://stackoverflow.com/questions/44778/
 				outfile.write( linestr )
 			##start a new person
@@ -82,12 +83,11 @@ def formatfile(infilename, outfilename):
 		else:
 			subline += 1
 		
-		#messaging("Line %s: %s" % (subline, line) )
+		#messaging("Subline %s: %s" % (subline, line) )
 		if len(header) != len(line):
 			messaging("Error: Different number of columns in record %s, line %s (file line # %s) than in header." % (count, subline, linenum) )
 			messaging("Person: %s\nProblematic line: %s" % (output,line) )
 			return("error")
-		##get the index # for these columns: futureproofing, in case more cols are added later
 		if subline==0:
 			output = line
 			continue
@@ -96,6 +96,7 @@ def formatfile(infilename, outfilename):
 				index = header.index( field )
 				if len( output[index] )==0:
 					output[ index ] = line[ index ]
+			# not sure we need this exception anymore, since we're not looking for a column with a specific name?
 			except ValueError:
 				if count==1:
 					messaging("Warning: %s column is missing." % field )
@@ -106,32 +107,9 @@ def formatfile(infilename, outfilename):
 				messaging("Error on line %s of file. Count: %s, Step: %s, Index of %s: %s" % ( linenum, count, i, field , header.index( fields[i] )) )
 				messaging("Person: %s\nProblematic line: %s" % (output,line) )
 				return("error")
-				
-				
-		# if subline==1:
-			# ## tax form fields are on the second line
-			# fields = ['w4', 'witholding', 'additional amount', 'exempt']
-		# if subline==2:
-			# ## effective date and CA withholding are on the third line
-			# fields = ['effective date','CA Withholding']
-		# if subline==3 or subline==4:
-			# ## skip 2 lines (subline==3 and 4) b/c they add nothing
-			# continue
-		# if subline==5:
-			# ## EEOC categories are on the sixth line
-			# fields = ['eeoc','eeoc 2']
-		# for i in range(len(fields)):
-			# try:
-				# #index = header.index( fields[i] )
-				# #output[index] = line[index]
-				# #messaging("Step %s, index of %s: %s" % ( i, fields[i] , header.index( fields[i] )) )
-				# index = header.index( fields[i] )
-				# if len( line[ index ] ) > 0:
-					# output[ index ] = line[ index ]
-			
 	
-	##write our consolidated FOR THE LAST PERSON to file!
-	linestr = ','.join(map(str, (output[ i ] for i in range(len(header)) ))) + "\n"
+	##write our consolidated data FOR THE LAST PERSON to file!
+	linestr = ','.join(map(str, ( '"'+output[i]+'"' for i in range(len(header)) ))) + "\n"
 	# http://stackoverflow.com/questions/44778/
 	outfile.write( linestr )
 	
