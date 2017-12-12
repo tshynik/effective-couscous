@@ -58,7 +58,8 @@ def formatfile(infilename, outfilename):
 			outfile.write( newheader )
 			continue;
 		
-		## if this isn't a new person (the "office code" field is blank), go to next line. If it is, count a new person.
+		## if this isn't a new person (the "office code" field is blank), go to next line.
+		## If it is a new person, count a new person and go on to read the next 7(?) lines as well.
 		#line[0] = line[0].strip('\"\'')
 		if len(line[0])==0 :
 			continue
@@ -66,9 +67,10 @@ def formatfile(infilename, outfilename):
 			messaging("Warning: On line %s, Office Code may be incorrect: %s" % (linenum, line[0]) )
 		count += 1
 		
-		
-		# # tax form fields are on the second line
-		# line2 = infile.readline()
+		## tax form fields are on the second line
+		next(infile)
+		next(infile)
+		messaging("Line 2: %s" % line)
 		# line2 = line2.split(",")
 		# line2[-1] = line2[-1].strip('\"\'')
 		# if len(header) != len(line2):
